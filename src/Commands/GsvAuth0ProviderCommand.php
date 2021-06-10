@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Adaptdk\GsvAuth0Provider\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class GsvAuth0ProviderCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'gsv-auth0-provider';
 
     public $description = 'My command';
 

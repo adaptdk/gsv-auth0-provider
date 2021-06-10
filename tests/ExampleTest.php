@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+namespace Adaptdk\GsvAuth0Provider\Tests;
 
 class ExampleTest extends TestCase
 {

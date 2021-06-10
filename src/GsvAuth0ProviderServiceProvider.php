@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton;
+namespace Adaptdk\GsvAuth0Provider;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use VendorName\Skeleton\Commands\SkeletonCommand;
+use Adaptdk\GsvAuth0Provider\Commands\GsvAuth0ProviderCommand;
 
-class SkeletonServiceProvider extends PackageServiceProvider
+class GsvAuth0ProviderServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
@@ -16,10 +16,10 @@ class SkeletonServiceProvider extends PackageServiceProvider
          * More info: https://github.com/spatie/laravel-package-tools
          */
         $package
-            ->name('skeleton')
+            ->name('gsv-auth0-provider')
             ->hasConfigFile()
             ->hasViews()
-            ->hasMigration('create_skeleton_table')
-            ->hasCommand(SkeletonCommand::class);
+            ->hasMigration('create_gsv-auth0-provider_table')
+            ->hasCommand(GsvAuth0ProviderCommand::class);
     }
 }

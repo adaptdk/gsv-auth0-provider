@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\Skeleton\Database\Factories;
+namespace Adaptdk\GsvAuth0Provider\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

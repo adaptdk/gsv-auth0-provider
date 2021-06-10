@@ -1,17 +1,17 @@
 {
-    "name": "vendor_slug/package_slug",
-    "description": ":package_description",
+    "name": "adaptdk/gsv-auth0-provider",
+    "description": "This package providers a middleware and some helper functions for connecting with Auth0 and the GSV Auth API.",
     "keywords": [
-        ":vendor_name",
+        "adaptdk",
         "laravel",
-        "package_slug"
+        "gsv-auth0-provider"
     ],
-    "homepage": "https://github.com/vendor_slug/package_slug",
+    "homepage": "https://github.com/adaptdk/gsv-auth0-provider",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Jess Stopa",
+            "email": "jess@stopa.dk",
             "role": "Developer"
         }
     ],
@@ -30,13 +30,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories"
+            "Adaptdk\\GsvAuth0Provider\\": "src",
+            "Adaptdk\\GsvAuth0Provider\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests"
+            "Adaptdk\\GsvAuth0Provider\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -50,10 +50,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Adaptdk\\GsvAuth0Provider\\GsvAuth0ProviderServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\SkeletonFacade"
+                "GsvAuth0Provider": "Adaptdk\\GsvAuth0Provider\\GsvAuth0ProviderFacade"
             }
         }
     },
