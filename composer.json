@@ -1,6 +1,6 @@
 {
     "name": "adaptdk/gsv-auth0-provider",
-    "description": "This package providers a middleware and some helper functions for connecting with Auth0 and the GSV Auth API.",
+    "description": "GSV Auth0 Authentication package",
     "keywords": [
         "adaptdk",
         "laravel",
@@ -11,14 +11,14 @@
     "authors": [
         {
             "name": "Jess Stopa",
-            "email": "jess@stopa.dk",
+            "email": "jess@adaptagency.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.0",
-        "spatie/laravel-package-tools": "^1.4.3",
-        "illuminate/contracts": "^8.37"
+        "php": "^7.4|^8.0",
+        "auth0/auth0-php": "^7.9",
+        "illuminate/support": "^8.0"
     },
     "require-dev": {
         "brianium/paratest": "^6.2",
@@ -30,8 +30,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Adaptdk\\GsvAuth0Provider\\": "src",
-            "Adaptdk\\GsvAuth0Provider\\Database\\Factories\\": "database/factories"
+            "Adaptdk\\GsvAuth0Provider\\": "src"
         }
     },
     "autoload-dev": {
