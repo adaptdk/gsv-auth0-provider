@@ -2,9 +2,9 @@
 
 namespace Adaptdk\GsvAuth0Provider\Tests;
 
+use Adaptdk\GsvAuth0Provider\GsvAuth0ProviderServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Adaptdk\GsvAuth0Provider\GsvAuth0ProviderServiceProvider;
 
 class TestCase extends Orchestra
 {

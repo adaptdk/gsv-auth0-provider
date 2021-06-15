@@ -76,6 +76,7 @@ class GsvAuth0Provider
     public function setCache(CacheRepository $cache): self
     {
         $this->cache = $cache;
+
         return $this;
     }
 
@@ -140,14 +141,14 @@ class GsvAuth0Provider
     public function decodeJWT(string $encUser, array $verifierOptions = []): array
     {
         $jwks_fetcher = app()->make('gsv-auth0-jwks-fetcher', [
-            'cache' => $this->cache
+            'cache' => $this->cache,
         ]);
         $jwks = $jwks_fetcher->getKeys($this->jwks_uri);
 
         $token_verifier = app()->make('gsv-auth0-token-verifier', [
             'domain' => $this->auth0_domain,
             'apiIdentifier' => $this->api_identifier,
-            'jwks' => $jwks
+            'jwks' => $jwks,
         ]);
 
         return $token_verifier->verify($encUser, $verifierOptions);

@@ -51,7 +51,7 @@ class GsvAuth0ProviderTest extends TestCase
                         'name' => 'John Doe',
                         'email' => 'john@doe.com',
                         'company' => [
-                            'navision_account_no' => 9
+                            'navision_account_no' => 9,
                         ],
                     ],
                 ]);
@@ -68,7 +68,7 @@ class GsvAuth0ProviderTest extends TestCase
     public function it_can_return_the_current_user()
     {
         $this->actingAs(new Auth0User([
-            'id' => 3
+            'id' => 3,
         ]));
 
         $object = new GsvAuth0Provider('localhost', 'localhost');
