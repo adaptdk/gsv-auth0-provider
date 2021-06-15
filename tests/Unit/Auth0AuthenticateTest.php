@@ -13,7 +13,9 @@ class Auth0AuthenticateTest extends TestCase
     /** @test */
     public function it_returns_status_200_if_user_is_logged_in()
     {
-        $this->actingAs(new Auth0User());
+        $this->actingAs(new Auth0User([
+            'id' => 1
+        ]));
 
         $response = (new Auth0Authenticate())->handle(new Request(), function ($request) {
             return new Response();
