@@ -5,35 +5,24 @@
 
 ## Installation
 
-You can install the package via composer:
-
+You can install the package via composer. Add the following to composer.json:
 ```bash
-composer require adaptdk/gsv-auth0-provider
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/adaptdk/gsv-auth0-provider"
+        }
+    ],
+    "require": {
+        "adaptdk/gsv-auth0-provider": "*"
+    }
+}
 ```
 
-You can publish the config file with:
+Next run the command:
 ```bash
-php artisan vendor:publish --provider="Adaptdk\GsvAuth0Provider\GsvAuth0ProviderServiceProvider" --tag="gsv-auth0-provider-config"
-```
-
-This is the contents of the published config file:
-
-```php
-return [
-
-    // This is the domain for the account in Auth0
-    'domain' => env('AUTH0_DOMAIN', 'gsv.eu.auth0.com'),
-
-    // The incoming token must have access to this API (find the API identifier in Auth0)
-    'api_identifier' => env('AUTH0_API_IDENTIFIER'),
-
-    // The base URL for the user service
-    'user_api_base_url' => env('AUTH0_USER_API'),
-
-    // The URI for the JWKS file (fallback to https://gsv.eu.auth0.com/.well-known/jwks.json)
-    'jwks_uri' => null,
-
-];
+composer install
 ```
 
 ## Usage (Lumen)
@@ -80,6 +69,32 @@ $router->get('/posts', [
 ```
 
 Simply change `create_post` to the name of the required permission.
+
+## Usage (Laravel)
+
+_Under construction._
+
+## Config file
+
+This is the contents of the config file:
+
+```php
+return [
+
+    // This is the domain for the account in Auth0
+    'domain' => env('AUTH0_DOMAIN', 'gsv.eu.auth0.com'),
+
+    // The incoming token must have access to this API (find the API identifier in Auth0)
+    'api_identifier' => env('AUTH0_API_IDENTIFIER'),
+
+    // The base URL for the user service
+    'user_api_base_url' => env('AUTH0_USER_API'),
+
+    // The URI for the JWKS file (fallback to https://gsv.eu.auth0.com/.well-known/jwks.json)
+    'jwks_uri' => null,
+
+];
+```
 
 ## Testing
 
