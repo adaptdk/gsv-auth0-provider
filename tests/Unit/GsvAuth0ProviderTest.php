@@ -24,7 +24,50 @@ class GsvAuth0ProviderTest extends TestCase
     /** @test */
     public function it_can_authenticate()
     {
-        $randomToken = 'wewerwrwrr';
+        $randomToken = '1c1619e44e35560adf878034a8f35773';
+
+        $this->app->bind('gsv-auth0-jwks-fetcher', function () {
+            return Mockery::mock(JWKFetcher::class, function ($mock) {
+                $mock->shouldReceive('getKeys')->once();
+            });
+        });
+
+        $this->app->bind('gsv-auth0-token-verifier', function () {
+            return Mockery::mock(TokenVerifier::class, function ($mock) {
+                $mock->shouldReceive('verify')->once()->andReturn([
+                    'exp' => (int) Carbon::now()->addDay()->format('U'),
+                    'sub' => 'sms|1234567890',
+                    'scope' => 'seePrice book return',
+                ]);
+            });
+        });
+
+        $object = new GsvAuth0Provider('localhost', 'localhost');
+        $object->authenticate($randomToken);
+
+        $this->assertTrue(auth()->check());
+
+        $user = $object->getUser();
+
+        $this->assertEquals($randomToken, $user->token);
+        $this->assertEquals('sms|1234567890', $user->id_token);
+        $this->assertInstanceOf(Carbon::class, $user->expires);
+        $this->assertIsArray($user->abilities);
+        $this->assertContains('seePrice', $user->abilities);
+        $this->assertContains('book', $user->abilities);
+        $this->assertContains('return', $user->abilities);
+
+        // These properties should not be set yet
+        $this->assertEmpty($user->id);
+        $this->assertEmpty($user->name);
+        $this->assertEmpty($user->email);
+        $this->assertEmpty($user->company);
+    }
+
+    /** @test */
+    public function it_can_load_user_data()
+    {
+        $randomToken = '1c1619e44e35560adf878034a8f35773';
 
         $this->app->bind('gsv-auth0-jwks-fetcher', function () {
             return Mockery::mock(JWKFetcher::class, function ($mock) {
@@ -59,9 +102,14 @@ class GsvAuth0ProviderTest extends TestCase
         });
 
         $object = new GsvAuth0Provider('localhost', 'localhost');
-        $object->authenticate($randomToken);
+        $object->authenticate($randomToken)->loadUserData();
 
-        $this->assertTrue(auth()->check());
+        $user = $object->getUser();
+
+        $this->assertEquals(1, $user->id);
+        $this->assertEquals('John Doe', $user->name);
+        $this->assertEquals('john@doe.com', $user->email);
+        $this->assertIsArray($user->company);
     }
 
     /** @test */

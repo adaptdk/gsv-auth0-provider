@@ -43,9 +43,9 @@ class GsvAuth0Provider
      * Authenticate the token
      *
      * @param string $token
-     * @return Authenticatable
+     * @return self
      */
-    public function authenticate(string $token): Authenticatable
+    public function authenticate(string $token): self
     {
         if ($this->auth0_domain === null) {
             throw new \Exception('Auth0 domain not set');
@@ -64,7 +64,7 @@ class GsvAuth0Provider
             throw new InvalidTokenException($e->getMessage(), 401);
         }
 
-        return $this->getUser();
+        return $this;
     }
 
     /**
@@ -89,24 +89,10 @@ class GsvAuth0Provider
      */
     public function setUser(array $info, string $token): self
     {
-        $expire = Carbon::parse($info['exp']);
-
-        $client = app()->make('gsv-auth0-user-service');
-
-        $user = $this->cache->rememberWhen(
-            $expire->isAfter(Carbon::now()),
-            md5($token),
-            $expire->diffInSeconds(Carbon::now()),
-            function () use ($token, $info, $client) {
-                return $client->setToken($token)->getUser($info['sub']);
-            }
-        );
-
         auth()->setUser(new Auth0User([
-            'id' => $user['data']['id'],
-            'name' => $user['data']['name'],
-            'email' => $user['data']['email'],
-            'customer_no' => $user['data']['company']['navision_account_no'],
+            'token' => $token,
+            'id_token' => $info['sub'],
+            'expires' => Carbon::parse($info['exp']),
             'abilities' => explode(' ', $info['scope']),
         ]));
 
@@ -120,11 +106,36 @@ class GsvAuth0Provider
     }
 
     /**
+     * Load user data from the user service
+     *
+     * @return self
+     */
+    public function loadUserData(): self
+    {
+        $user = $this->getUser();
+
+        $client = app()->make('gsv-auth0-user-service');
+
+        $userData = $this->cache->rememberWhen(
+            $user->expires->isAfter(Carbon::now()), // Only cache if this condition is met
+            md5($user->token), // The cache key
+            $user->expires->diffInSeconds(Carbon::now()), // Cache expires when the auth expires
+            function () use ($client, $user) {
+                return $client->setToken($user->token)->fetch($user->id_token);
+            }
+        );
+
+        $user->fill($userData['data']);
+
+        return $this;
+    }
+
+    /**
      * Get the current user
      *
-     * @return GenericUser
+     * @return Auth0User
      */
-    public function getUser(): GenericUser
+    public function getUser(): Auth0User
     {
         return auth()->user();
     }

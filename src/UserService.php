@@ -9,20 +9,39 @@ class UserService
     /**
      * @var string
      */
-    protected string $baseUrl;
+    protected $baseUrl;
 
     /**
      * @var string
      */
     protected string $token;
 
-    public function __construct(?string $baseUrl)
+    public function __construct(?string $baseUrl = null)
     {
-        if ($baseUrl === null) {
-            throw new \Exception('User service base URL not set');
-        }
-
         $this->baseUrl = $baseUrl;
+    }
+
+    /**
+     * Set the base URL
+     *
+     * @param string $baseUrl
+     * @return self
+     */
+    public function setBaseUrl(string $baseUrl): self
+    {
+        $this->baseUrl = $baseUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get the base URL
+     *
+     * @return string
+     */
+    public function getBaseUrl(): string
+    {
+        return $this->baseUrl;
     }
 
     /**
@@ -31,7 +50,7 @@ class UserService
      * @param string $token
      * @return self
      */
-    public function setToken(string $token) : self
+    public function setToken(string $token): self
     {
         $this->token = $token;
 
@@ -39,14 +58,28 @@ class UserService
     }
 
     /**
+     * Get the access token
+     *
+     * @return string
+     */
+    public function getToken(): string
+    {
+        return $this->token;
+    }
+
+    /**
      * Get the user data
      *
      * @return mixed
      */
-    public function getUser()
+    public function fetch()
     {
         if (empty($this->token)) {
-            return false;
+            throw new \Exception('Token not set');
+        }
+
+        if (empty($this->baseUrl)) {
+            throw new \Exception('Base URL not set');
         }
 
         return Http::withToken($this->token)

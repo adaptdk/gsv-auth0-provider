@@ -8,6 +8,21 @@ use Illuminate\Contracts\Auth\Access\Gate;
 class Auth0User extends GenericUser
 {
     /**
+     * Set multiple properties
+     *
+     * @param array $attributes
+     * @return self
+     */
+    public function fill(array $attributes)
+    {
+        foreach ($attributes as $key => $value) {
+            $this->$key = $value;
+        }
+
+        return $this;
+    }
+
+    /**
      * Determine if the entity has the given abilities.
      *
      * @param  iterable|string  $abilities
@@ -53,5 +68,16 @@ class Auth0User extends GenericUser
     public function cannot($abilities, $arguments = [])
     {
         return $this->cant($abilities, $arguments);
+    }
+
+    /**
+     * Dynamically access the user's attributes.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->attributes[$key] ?? null;
     }
 }
