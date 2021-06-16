@@ -34,14 +34,21 @@ Register the service provider:
 $app->register(\Adaptdk\GsvAuth0Provider\GsvAuth0ProviderServiceProvider::class);
 ```
 
-Enable the authentication middleware globally:
+Enable the authentication middleware:
 ```php
-$app->middleware([
-    \Adaptdk\GsvAuth0Provider\Http\Middleware\Auth0Authenticate::class,
+$app->routeMiddleware([
+    'auth' => \Adaptdk\GsvAuth0Provider\Http\Middleware\Auth0Authenticate::class,
 ]);
 ```
 
-Now it is possible to access the current user with:
+Apply the middleware to your routes:
+```php
+$router->group(['middleware' => 'auth'], function ($router) {
+    // Your routes here...
+});
+```
+
+Now it is possible to access the current user in the protected routes with:
 ```php
 auth()->user();
 ```
@@ -51,9 +58,9 @@ You can check for permissions by using `auth()->user()->can()`, for example:
 auth()->user()->can('create_post');
 ```
 
-### Route protection
+### Authorization
 
-Add the standard route middleware:
+Add the standard authorization middleware:
 ```php
 $app->routeMiddleware([
     'can' => \Illuminate\Auth\Middleware\Authorize::class,
