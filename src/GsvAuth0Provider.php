@@ -68,44 +68,6 @@ class GsvAuth0Provider
     }
 
     /**
-     * Set the cache store
-     *
-     * @param CacheRepository $cache
-     * @return self
-     */
-    public function setCache(CacheRepository $cache): self
-    {
-        $this->cache = $cache;
-
-        return $this;
-    }
-
-    /**
-     * Set the current user based on data from the user service
-     *
-     * @param array $info
-     * @param string $token
-     * @return self
-     */
-    public function setUser(array $info, string $token): self
-    {
-        auth()->setUser(new Auth0User([
-            'token' => $token,
-            'id_token' => $info['sub'],
-            'expires' => Carbon::parse($info['exp']),
-            'abilities' => explode(' ', $info['scope']),
-        ]));
-
-        foreach ($this->getUser()->abilities as $ability) {
-            Gate::define($ability, function () {
-                return true;
-            });
-        }
-
-        return $this;
-    }
-
-    /**
      * Load user data from the user service
      *
      * @return self
@@ -121,7 +83,7 @@ class GsvAuth0Provider
             md5($user->token), // The cache key
             $user->expires->diffInSeconds(Carbon::now()), // Cache expires when the auth expires
             function () use ($client, $user) {
-                return $client->setToken($user->token)->fetch($user->id_token);
+                return $client->setToken($user->token)->fetch($user->auth0_id);
             }
         );
 
@@ -141,7 +103,32 @@ class GsvAuth0Provider
     }
 
     /**
-     * Undocumented function
+     * Set the current user based on data from the user service
+     *
+     * @param array $info
+     * @param string $token
+     * @return self
+     */
+    protected function setUser(array $info, string $token): self
+    {
+        auth()->setUser(new Auth0User([
+            'token' => $token,
+            'auth0_id' => $info['sub'],
+            'expires' => Carbon::parse($info['exp']),
+            'abilities' => explode(' ', $info['scope']),
+        ]));
+
+        foreach ($this->getUser()->abilities as $ability) {
+            Gate::define($ability, function () {
+                return true;
+            });
+        }
+
+        return $this;
+    }
+
+    /**
+     * Verify a JWT from Auth0
      *
      * @see https://github.com/auth0/laravel-auth0/blob/8377bd09644de60d5a8688653589ea299ccd2969/src/Auth0/Login/Auth0Service.php#L206
      * @param string $encUser
@@ -149,7 +136,7 @@ class GsvAuth0Provider
      * @throws InvalidTokenException
      * @return array
      */
-    public function decodeJWT(string $encUser, array $verifierOptions = []): array
+    protected function decodeJWT(string $encUser, array $verifierOptions = []): array
     {
         $jwks_fetcher = app()->make('gsv-auth0-jwks-fetcher', [
             'cache' => $this->cache,

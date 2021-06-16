@@ -50,7 +50,7 @@ class GsvAuth0ProviderTest extends TestCase
         $user = $object->getUser();
 
         $this->assertEquals($randomToken, $user->token);
-        $this->assertEquals('sms|1234567890', $user->id_token);
+        $this->assertEquals('sms|1234567890', $user->auth0_id);
         $this->assertInstanceOf(Carbon::class, $user->expires);
         $this->assertIsArray($user->abilities);
         $this->assertContains('seePrice', $user->abilities);
@@ -88,7 +88,7 @@ class GsvAuth0ProviderTest extends TestCase
         $this->app->bind('gsv-auth0-user-service', function () {
             return Mockery::mock(UserService::class, function ($mock) {
                 $mock->shouldReceive('setToken')->once()->andReturnSelf();
-                $mock->shouldReceive('getUser')->once()->andReturn([
+                $mock->shouldReceive('fetch')->once()->andReturn([
                     'data' => [
                         'id' => 1,
                         'name' => 'John Doe',
