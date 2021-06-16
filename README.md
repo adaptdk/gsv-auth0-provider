@@ -53,10 +53,22 @@ Now it is possible to access the current user in the protected routes with:
 auth()->user();
 ```
 
+Or alternatively:
+```php
+GsvAuth0Provider::getUser();
+```
+
 You can check for permissions by using `auth()->user()->can()`, for example:
 ```php
 auth()->user()->can('create_post');
 ```
+
+To load data from the user service, simply call a method on the facade:
+```php
+GsvAuth0Provider::loadUserData();
+```
+
+Data is now available on the `auth()->user()` instance.
 
 ### Authorization
 
