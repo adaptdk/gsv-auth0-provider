@@ -48,7 +48,7 @@
                 "Adaptdk\\GsvAuth0Provider\\GsvAuth0ProviderServiceProvider"
             ],
             "aliases": {
-                "GsvAuth0Provider": "Adaptdk\\GsvAuth0Provider\\GsvAuth0ProviderFacade"
+                "GsvAuth0Provider": "Adaptdk\\GsvAuth0Provider\\Facades\\GsvAuth0Provider"
             }
         }
     },
