@@ -52,7 +52,7 @@ class GsvAuth0ProviderServiceProvider extends ServiceProvider
         });
 
         // Open the gates
-        Auth::viaRequest('api', function (Request $request) {
+        Auth::viaRequest('gsv-auth0-provider', function (Request $request) {
             if ($token = $request->bearerToken()) {
                 return $this->app->make('gsv-auth0-provider')->authenticate($token)->getUser();
             }
