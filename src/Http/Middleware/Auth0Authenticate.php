@@ -6,9 +6,9 @@ use Closure;
 
 class Auth0Authenticate
 {
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, $guard = null)
     {
-        if (! auth()->check()) {
+        if (!auth($guard)->check()) {
             return response(['error' => 'Unauthorized.'], 401);
         }
 

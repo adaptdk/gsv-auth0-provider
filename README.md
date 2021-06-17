@@ -13,19 +13,35 @@ You can install the package via composer. Add the following to composer.json:
             "type": "vcs",
             "url": "https://github.com/adaptdk/gsv-auth0-provider"
         }
-    ],
-    "require": {
-        "adaptdk/gsv-auth0-provider": "*"
-    }
+    ]
 }
 ```
 
 Next run the command:
 ```bash
-composer install
+composer require adaptdk/gsv-auth0-provider
 ```
 
-## Usage (Lumen)
+## Configuration
+
+### Lumen
+
+Add a custom auth guard by creating the file `config/auth.php` with the following content:
+```php
+return [
+    'defaults' => [
+        'guard' => 'auth0', // The guard name can be anything, it just have to appear in the 'guards' array below
+    ],
+
+    'guards' => [
+        'auth0' => [
+            'driver' => 'gsv-auth0-provider', // The driver name must be exactly this
+        ],
+    ],
+];
+```
+
+The file will automatically be loaded by Lumen.
 
 Make the following changes in `bootstrap/app.php`.
 
@@ -48,12 +64,45 @@ $router->group(['middleware' => 'auth'], function ($router) {
 });
 ```
 
-Now it is possible to access the current user in the protected routes with:
+### Laravel
+
+The service provider will be auto-discovered.
+
+Add a custom guard to the 'guards' array in `config/auth.php`:
+```php
+return [
+    'guards' => [
+        'auth0' => [ // The guard name can be anything...
+            'driver' => 'gsv-auth0-provider', // ...but the driver name must be exactly this
+        ],
+    ],
+];
+```
+
+Enable the authentication middleware where needed:
+```php
+protected $routeMiddleware = [
+    // ...
+    'auth' => \Adaptdk\GsvAuth0Provider\Http\Middleware\Auth0Authenticate::class,
+    // ...
+];
+```
+
+Apply the middleware to your routes with the guard name you have configured:
+```php
+Route::group(['middleware' => ['auth:auth0']], function () {
+    // ...
+});
+```
+
+## Usage
+
+It is possible to access the current user in the protected routes with:
 ```php
 auth()->user();
 ```
 
-Or alternatively:
+Or alternatively with the facade:
 ```php
 GsvAuth0Provider::getUser();
 ```
@@ -70,7 +119,7 @@ GsvAuth0Provider::loadUserData();
 
 Data is now available on the `auth()->user()` instance.
 
-### Authorization
+## Authorization
 
 Add the standard authorization middleware:
 ```php
@@ -88,10 +137,6 @@ $router->get('/posts', [
 ```
 
 Simply change `create_post` to the name of the required permission.
-
-## Usage (Laravel)
-
-_Under construction._
 
 ## Config file
 
