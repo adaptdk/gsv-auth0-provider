@@ -50,7 +50,7 @@ class GsvAuth0ProviderTest extends TestCase
         $user = $object->getUser();
 
         $this->assertEquals($randomToken, $user->token);
-        $this->assertEquals('sms|1234567890', $user->auth0_id);
+        $this->assertEquals('sms|1234567890', $user->id);
         $this->assertInstanceOf(Carbon::class, $user->expires);
         $this->assertIsArray($user->abilities);
         $this->assertContains('seePrice', $user->abilities);
