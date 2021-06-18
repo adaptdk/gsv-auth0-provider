@@ -83,7 +83,7 @@ class GsvAuth0Provider
             md5($user->token), // The cache key
             $user->expires->diffInSeconds(Carbon::now()), // Cache expires when the auth expires
             function () use ($client, $user) {
-                return $client->setToken($user->token)->fetch($user->auth0_id);
+                return $client->setToken($user->token)->fetch($user->id);
             }
         );
 
