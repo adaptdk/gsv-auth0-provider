@@ -113,7 +113,7 @@ class GsvAuth0Provider
     {
         auth()->setUser(new Auth0User([
             'token' => $token,
-            'auth0_id' => $info['sub'],
+            'id' => $info['sub'],
             'expires' => Carbon::parse($info['exp']),
             'abilities' => explode(' ', $info['scope']),
         ]));
