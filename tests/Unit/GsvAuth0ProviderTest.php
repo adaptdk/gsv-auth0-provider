@@ -58,7 +58,6 @@ class GsvAuth0ProviderTest extends TestCase
         $this->assertContains('return', $user->abilities);
 
         // These properties should not be set yet
-        $this->assertEmpty($user->id);
         $this->assertEmpty($user->name);
         $this->assertEmpty($user->email);
         $this->assertEmpty($user->company);
