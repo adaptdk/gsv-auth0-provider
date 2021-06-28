@@ -2,11 +2,9 @@
 
 namespace Adaptdk\GsvAuth0Provider;
 
+use Adaptdk\GsvAuth0Provider\Exceptions\InvalidTokenException;
+use Adaptdk\GsvAuth0Provider\Exceptions\UserNotFoundException;
 use Adaptdk\GsvAuth0Provider\Models\Auth0User;
-use Auth0\SDK\Exception\InvalidTokenException;
-use Illuminate\Auth\GenericUser;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 
@@ -86,6 +84,10 @@ class GsvAuth0Provider
                 return $client->setToken($user->token)->fetch($user->auth0_id);
             }
         );
+
+        if ((isset($userData['status']) && $userData['status'] === 'Error') || empty($userData['data'])) {
+            throw new UserNotFoundException($userData['message'], 401);
+        }
 
         $user->fill($userData['data']);
 
