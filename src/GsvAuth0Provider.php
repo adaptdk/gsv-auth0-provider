@@ -70,9 +70,9 @@ class GsvAuth0Provider
      *
      * @return self
      */
-    public function loadUserData(): self
+    public function loadUserData(Auth0User $user = null): self
     {
-        $user = $this->getUser();
+        $user = $user ?: $this->getUser();
 
         $client = app()->make('gsv-auth0-user-service');
 
@@ -113,12 +113,18 @@ class GsvAuth0Provider
      */
     protected function setUser(array $info, string $token): self
     {
-        auth()->setUser(new Auth0User([
+        $user = new Auth0User([
             'token' => $token,
             'auth0_id' => $info['sub'],
             'expires' => Carbon::parse($info['exp']),
             'abilities' => explode(' ', $info['scope']),
-        ]));
+        ]);
+
+        if (config('gsv-auth0-provider.autoload_user')) {
+            $this->loadUserData($user);
+        }
+
+        auth()->setUser($user);
 
         foreach ($this->getUser()->abilities as $ability) {
             Gate::define($ability, function () {

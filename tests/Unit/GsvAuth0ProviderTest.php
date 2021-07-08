@@ -42,6 +42,8 @@ class GsvAuth0ProviderTest extends TestCase
             });
         });
 
+        config(['gsv-auth0-provider.autoload_user' => false]);
+
         $object = new GsvAuth0Provider('localhost', 'localhost');
         $object->authenticate($randomToken);
 
@@ -101,6 +103,8 @@ class GsvAuth0ProviderTest extends TestCase
             });
         });
 
+        config(['gsv-auth0-provider.autoload_user' => false]);
+
         $object = new GsvAuth0Provider('localhost', 'localhost');
         $object->authenticate($randomToken)->loadUserData();
 
@@ -124,5 +128,53 @@ class GsvAuth0ProviderTest extends TestCase
 
         $this->assertInstanceOf(Auth0User::class, $user);
         $this->assertEquals(3, $user->id);
+    }
+
+    /** @test */
+    public function it_loads_user_data_automatically()
+    {
+        $randomToken = '1c1619e44e35560adf878034a8f35773';
+
+        $this->app->bind('gsv-auth0-jwks-fetcher', function () {
+            return Mockery::mock(JWKFetcher::class, function ($mock) {
+                $mock->shouldReceive('getKeys')->once();
+            });
+        });
+
+        $this->app->bind('gsv-auth0-token-verifier', function () {
+            return Mockery::mock(TokenVerifier::class, function ($mock) {
+                $mock->shouldReceive('verify')->once()->andReturn([
+                    'exp' => (int) Carbon::now()->addDay()->format('U'),
+                    'sub' => 'sms|1234567890',
+                    'scope' => 'seePrice book return',
+                ]);
+            });
+        });
+
+        $this->app->bind('gsv-auth0-user-service', function () {
+            return Mockery::mock(UserService::class, function ($mock) {
+                $mock->shouldReceive('setToken')->once()->andReturnSelf();
+                $mock->shouldReceive('fetch')->once()->andReturn([
+                    'data' => [
+                        'id' => 1,
+                        'name' => 'John Doe',
+                        'email' => 'john@doe.com',
+                        'company' => [
+                            'navision_account_no' => 9,
+                        ],
+                    ],
+                ]);
+            });
+        });
+
+        config(['gsv-auth0-provider.autoload_user' => true]);
+
+        $object = new GsvAuth0Provider('localhost', 'localhost');
+        $object->authenticate($randomToken);
+
+        $user = $object->getUser();
+
+        $this->assertEquals(1, $user->id);
+        $this->assertEquals(9, $user->getAccountNo());
     }
 }

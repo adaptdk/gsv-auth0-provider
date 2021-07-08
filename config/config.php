@@ -2,6 +2,9 @@
 
 return [
 
+    // Whether to load user data automatically (defaults to 'true')
+    'autoload_user' => true,
+
     // This is the domain for the account in Auth0
     'domain' => env('AUTH0_DOMAIN', 'gsv.eu.auth0.com'),
 

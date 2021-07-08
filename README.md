@@ -112,7 +112,7 @@ You can check for permissions by using `auth()->user()->can()`, for example:
 auth()->user()->can('create_post');
 ```
 
-To load data from the user service, simply call a method on the facade:
+To load data from the user service (in case you have disabled automatic loading), simply call a method on the facade:
 ```php
 GsvAuth0Provider::loadUserData();
 ```
@@ -144,6 +144,9 @@ This is the contents of the config file:
 
 ```php
 return [
+
+    // Whether to load user data automatically (defaults to 'true')
+    'autoload_user' => true,
 
     // This is the domain for the account in Auth0
     'domain' => env('AUTH0_DOMAIN', 'gsv.eu.auth0.com'),

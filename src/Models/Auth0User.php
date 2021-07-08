@@ -8,6 +8,16 @@ use Illuminate\Contracts\Auth\Access\Gate;
 class Auth0User extends GenericUser
 {
     /**
+     * Return the Navision account number
+     *
+     * @return string|null
+     */
+    public function getAccountNo()
+    {
+        return $this->company['navision_account_no'] ?? null;
+    }
+
+    /**
      * Set multiple properties
      *
      * @param array $attributes
