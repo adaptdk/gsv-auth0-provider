@@ -126,7 +126,7 @@ class GsvAuth0Provider
 
         auth()->setUser($user);
 
-        foreach ($this->getUser()->abilities as $ability) {
+        foreach (array_merge($this->getUser()->abilities, $this->getUser()->permissions ?? []) as $ability) {
             Gate::define($ability, function () {
                 return true;
             });
