@@ -52,7 +52,7 @@ class GsvAuth0ProviderTest extends TestCase
         $user = $object->getUser();
 
         $this->assertEquals($randomToken, $user->token);
-        $this->assertEquals('sms|1234567890', $user->auth0_id);
+        $this->assertEquals('sms|1234567890', $user->id);
         $this->assertInstanceOf(Carbon::class, $user->expires);
         $this->assertIsArray($user->abilities);
         $this->assertContains('seePrice', $user->abilities);
@@ -60,7 +60,6 @@ class GsvAuth0ProviderTest extends TestCase
         $this->assertContains('return', $user->abilities);
 
         // These properties should not be set yet
-        $this->assertEmpty($user->id);
         $this->assertEmpty($user->name);
         $this->assertEmpty($user->email);
         $this->assertEmpty($user->company);
