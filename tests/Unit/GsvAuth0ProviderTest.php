@@ -8,7 +8,9 @@ use Adaptdk\GsvAuth0Provider\Tests\TestCase;
 use Adaptdk\GsvAuth0Provider\UserService;
 use Auth0\SDK\Helpers\JWKFetcher;
 use Auth0\SDK\Helpers\Tokens\TokenVerifier;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Mockery;
 
 class GsvAuth0ProviderTest extends TestCase
@@ -35,7 +37,7 @@ class GsvAuth0ProviderTest extends TestCase
         $this->app->bind('gsv-auth0-token-verifier', function () {
             return Mockery::mock(TokenVerifier::class, function ($mock) {
                 $mock->shouldReceive('verify')->once()->andReturn([
-                    'exp' => (int) Carbon::now()->addDay()->format('U'),
+                    'exp' => (int)Carbon::now()->addDay()->format('U'),
                     'sub' => 'sms|1234567890',
                     'scope' => 'seePrice book return',
                 ]);
@@ -80,7 +82,7 @@ class GsvAuth0ProviderTest extends TestCase
         $this->app->bind('gsv-auth0-token-verifier', function () {
             return Mockery::mock(TokenVerifier::class, function ($mock) {
                 $mock->shouldReceive('verify')->once()->andReturn([
-                    'exp' => (int) Carbon::now()->addDay()->format('U'),
+                    'exp' => (int)Carbon::now()->addDay()->format('U'),
                     'sub' => 'sms|1234567890',
                     'scope' => 'seePrice book return',
                 ]);
@@ -119,9 +121,11 @@ class GsvAuth0ProviderTest extends TestCase
     /** @test */
     public function it_can_return_the_current_user()
     {
-        $this->actingAs(new Auth0User([
-            'id' => 3,
-        ]));
+        $this->actingAs(
+            new Auth0User([
+                'id' => 3,
+            ])
+        );
 
         $object = new GsvAuth0Provider('localhost', 'localhost');
         $user = $object->getUser();
@@ -144,7 +148,7 @@ class GsvAuth0ProviderTest extends TestCase
         $this->app->bind('gsv-auth0-token-verifier', function () {
             return Mockery::mock(TokenVerifier::class, function ($mock) {
                 $mock->shouldReceive('verify')->once()->andReturn([
-                    'exp' => (int) Carbon::now()->addDay()->format('U'),
+                    'exp' => (int)Carbon::now()->addDay()->format('U'),
                     'sub' => 'sms|1234567890',
                     'scope' => 'seePrice book return',
                 ]);
@@ -176,5 +180,108 @@ class GsvAuth0ProviderTest extends TestCase
 
         $this->assertEquals(1, $user->id);
         $this->assertEquals(9, $user->getAccountNo());
+    }
+
+    /** @test */
+    public function it_sets_user_permissions()
+    {
+        $randomToken = '1c1619e44e35560adf878034a8f35774';
+
+        $this->app->bind('gsv-auth0-jwks-fetcher', function () {
+            return Mockery::mock(JWKFetcher::class, function ($mock) {
+                $mock->shouldReceive('getKeys')->once();
+            });
+        });
+
+        $this->app->bind('gsv-auth0-token-verifier', function () {
+            return Mockery::mock(TokenVerifier::class, function ($mock) {
+                $mock->shouldReceive('verify')->once()->andReturn([
+                    'exp' => (int)Carbon::now()->addDay()->format('U'),
+                    'sub' => 'sms|1234567890',
+                    'scope' => 'seePrice book return',
+                ]);
+            });
+        });
+
+        $permissions = [
+            'webshop' => [
+                'seePrice',
+                'book',
+                'return',
+            ],
+            'dashboard' => [
+                'seePrice',
+                'book',
+                'return',
+                'createUsers',
+                'updateUsers',
+                'deleteUsers',
+            ],
+            'mobile_app' => [
+                'seePrice',
+                'book',
+                'return',
+            ],
+            'kundeportal' => [
+                'seePrice',
+                'book',
+                'return',
+            ]
+        ];
+
+        $expectedPermissions = [
+            'seePrice',
+            'book',
+            'return',
+            'webshop::seePrice',
+            'webshop::book',
+            'webshop::return',
+            'dashboard::seePrice',
+            'dashboard::book',
+            'dashboard::return',
+            'dashboard::createUsers',
+            'dashboard::updateUsers',
+            'dashboard::deleteUsers',
+            'mobile_app::seePrice',
+            'mobile_app::book',
+            'mobile_app::return',
+            'kundeportal::seePrice',
+            'kundeportal::book',
+            'kundeportal::return',
+        ];
+
+        $this->app->bind('gsv-auth0-user-service', function () use ($randomToken, $permissions) {
+            return Mockery::mock(UserService::class, function ($mock) use ($randomToken, $permissions) {
+                $mock->shouldReceive('setToken')->with($randomToken)->once()->andReturnSelf();
+                $mock->shouldReceive('fetch')->once()->andReturn([
+                    'data' => [
+                        'id' => 1,
+                        'name' => 'John Doe',
+                        'email' => 'john@doe.com',
+                        'company' => [
+                            'navision_account_no' => 9,
+                        ],
+                        'permission' => $permissions
+                    ],
+                ]);
+            });
+        });
+
+        config(['gsv-auth0-provider.autoload_user' => true]);
+
+        $object = new GsvAuth0Provider('localhost', 'localhost');
+        $object->authenticate($randomToken);
+
+        $user = $object->getUser();
+
+        $this->assertEquals(1, $user->id);
+        $this->assertEquals('John Doe', $user->name);
+        $this->assertEquals('john@doe.com', $user->email);
+        $this->assertIsArray($user->company);
+        $this->assertEquals($permissions, $user->permission);
+
+        foreach ($expectedPermissions as $expectedAppPermission) {
+            $this->assertTrue(\Illuminate\Support\Facades\Gate::allows($expectedAppPermission));
+        }
     }
 }

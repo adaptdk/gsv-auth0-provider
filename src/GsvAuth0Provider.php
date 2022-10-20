@@ -5,8 +5,10 @@ namespace Adaptdk\GsvAuth0Provider;
 use Adaptdk\GsvAuth0Provider\Exceptions\InvalidTokenException;
 use Adaptdk\GsvAuth0Provider\Exceptions\UserNotFoundException;
 use Adaptdk\GsvAuth0Provider\Models\Auth0User;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 
 class GsvAuth0Provider
 {
@@ -46,11 +48,11 @@ class GsvAuth0Provider
     public function authenticate(string $token): self
     {
         if ($this->auth0_domain === null) {
-            throw new \Exception('Auth0 domain not set');
+            throw new Exception('Auth0 domain not set');
         }
 
         if ($this->api_identifier === null) {
-            throw new \Exception('API identifier not set');
+            throw new Exception('API identifier not set');
         }
 
         try {
@@ -128,6 +130,24 @@ class GsvAuth0Provider
 
         collect($user->abilities)
             ->merge(auth()->user()->permission ?? [])
+            ->map(function ($permission, $applicationKey) {
+                if (is_array($permission)) {
+                    $permissions = [];
+
+                    foreach ($permission as $appPermission) {
+                        $ability = (string)Str::of($applicationKey)->append('::')->append($appPermission);
+
+                        // in order to keep backwards compatibility
+                        // we add both the application specific permission and the one without app prefix(old logic).
+                        $permissions[] = $appPermission;
+                        $permissions[] = $ability;
+                    }
+
+                    return $permissions;
+                }
+
+                return $permission;
+            })
             ->flatten()
             ->unique()
             ->each(function ($permission) {
