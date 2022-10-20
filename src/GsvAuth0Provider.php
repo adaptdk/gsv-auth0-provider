@@ -136,6 +136,10 @@ class GsvAuth0Provider
 
                     foreach ($permission as $appPermission) {
                         $ability = (string)Str::of($applicationKey)->append('::')->append($appPermission);
+
+                        // in order to keep backwards compatibility
+                        // we add both the application specific permission and the one without app prefix(old logic).
+                        $permissions[] = $appPermission;
                         $permissions[] = $ability;
                     }
 
