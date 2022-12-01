@@ -22,7 +22,7 @@ class Auth0User extends GenericUser
      *
      * @return boolean
      */
-    public function canBookWithBookingNumber(): ?bool
+    public function canBookWithBookingNumber(): bool
     {
         return $this->company['can_book_with_booking_numbers'] ?? false;
     }
