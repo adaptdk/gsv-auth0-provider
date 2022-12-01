@@ -18,6 +18,16 @@ class Auth0User extends GenericUser
     }
 
     /**
+     * Return the Can book with booking numbers permission
+     *
+     * @return boolean
+     */
+    public function canBookWithBookingNumber(): bool
+    {
+        return $this->company['can_book_with_booking_numbers'] ?? false;
+    }
+
+    /**
      * Set multiple properties
      *
      * @param array $attributes
