@@ -20,7 +20,7 @@ class Auth0User extends GenericUser
     /**
      * Return the Can book with booking numbers permission
      *
-     * @return boolean|null
+     * @return boolean
      */
     public function canBookWithBookingNumber(): ?bool
     {
