@@ -8,22 +8,15 @@
     ],
     "homepage": "https://github.com/adaptdk/gsv-auth0-provider",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Jess Stopa",
-            "email": "jess@adaptagency.com",
-            "role": "Developer"
-        }
-    ],
     "require": {
-        "php": "^7.4|^8.0",
-        "auth0/auth0-php": "^7.9",
-        "illuminate/support": "^8.0"
+        "php": "^8.1|^8.2",
+        "auth0/auth0-php": "^8.0",
+        "illuminate/support": "^8.0|^9.0|^10.0|^11.0"
     },
     "require-dev": {
-        "nunomaduro/collision": "^5.3",
-        "orchestra/testbench": "^6.18",
-        "phpunit/phpunit": "^9.3"
+        "nunomaduro/collision": "^5.3|^6|^7|^8",
+        "orchestra/testbench": "^6.18|^7|^8",
+        "phpunit/phpunit": "^9.3|^10|^11"
     },
     "autoload": {
         "psr-4": {
@@ -40,7 +33,10 @@
         "test-coverage": "./vendor/bin/phpunit --coverage-html coverage"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "extra": {
         "laravel": {
