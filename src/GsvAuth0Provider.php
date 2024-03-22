@@ -67,7 +67,7 @@ class GsvAuth0Provider
 
         if ($user->expires->isAfter(Carbon::now())) {
             $userData = Cache::remember(
-                md5($user->sub),
+                sprintf('user:info:%s', $user->sub),
                 $user->expires->diffInSeconds(Carbon::now()),
                 function () use ($client, $user) {
                     return $client->setToken($user->token)->fetch($user->auth0_id);
