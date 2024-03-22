@@ -9,57 +9,44 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+
+use Auth0\SDK\Token;
+use Auth0\SDK\Configuration\SdkConfiguration;
 
 class GsvAuth0Provider
 {
-    protected $auth0_domain;
+    protected $configuration;
 
-    protected $api_identifier;
-
-    protected $jwks_uri;
-
-    protected $cache;
-
-    public function __construct(?string $auth0_domain, ?string $api_identifier, ?string $jwks_uri = null)
+    public function __construct(?string $domain, ?string $audience)
     {
-        $this->auth0_domain = $auth0_domain;
-        $this->api_identifier = $api_identifier;
-
-        $this->jwks_uri = $jwks_uri ?: sprintf('https://%s/.well-known/jwks.json', $this->auth0_domain);
-
-        $this->cache = app()->make('cache.store');
-
-        // Add a neat little custom method that only caches if a condition is met
-        $this->cache->macro('rememberWhen', function ($condition, $key, $ttl, $callback) {
-            if ($condition) {
-                return $this->remember($key, $ttl, $callback);
-            } else {
-                return $callback();
-            }
-        });
+        $this->configuration = new SdkConfiguration(
+            domain: $domain,
+            audience: [$audience],
+            clientId: 'dummy',     // Don't need a real value as we only validate jwt's
+            clientSecret: 'dummy', // Don't need a real value as we only validate jwt's
+            cookieSecret: 'dummy', // Don't need a real value as we only validate jwt's
+        );
     }
 
     /**
-     * Authenticate the token
+     * Authenticate the jwt
      *
      * @param string $token
      * @return self
      */
-    public function authenticate(string $token): self
+    public function authenticate(string $jwt): self
     {
-        if ($this->auth0_domain === null) {
-            throw new Exception('Auth0 domain not set');
-        }
-
-        if ($this->api_identifier === null) {
-            throw new Exception('API identifier not set');
+        if ($this->configuration === null) {
+            throw new Exception('Auth0 configuration not set');
         }
 
         try {
-            $info = $this->decodeJWT($token);
-
-            $this->setUser($info, $token);
-        } catch (InvalidTokenException $e) {
+            $token = new Token($this->configuration, $jwt, \Auth0\SDK\Token::TYPE_ACCESS_TOKEN);
+            $token->verify();
+            $token->validate();
+            $this->setUser($token->toArray(), $jwt);
+        } catch (\Exception $e) {
             // Re-throw into a 401
             throw new InvalidTokenException($e->getMessage(), 401);
         }
@@ -78,14 +65,17 @@ class GsvAuth0Provider
 
         $client = app()->make('gsv-auth0-user-service');
 
-        $userData = $this->cache->rememberWhen(
-            $user->expires->isAfter(Carbon::now()), // Only cache if this condition is met
-            md5($user->token), // The cache key
-            $user->expires->diffInSeconds(Carbon::now()), // Cache expires when the auth expires
-            function () use ($client, $user) {
-                return $client->setToken($user->token)->fetch($user->auth0_id);
-            }
-        );
+        if ($user->expires->isAfter(Carbon::now())) {
+            $userData = Cache::remember(
+                md5($user->sub),
+                $user->expires->diffInSeconds(Carbon::now()),
+                function () use ($client, $user) {
+                    return $client->setToken($user->token)->fetch($user->auth0_id);
+                }
+            );
+        } else {
+            $userData = $client->setToken($user->token)->fetch($user->auth0_id);
+        }
 
         if ((isset($userData['status']) && $userData['status'] === 'Error') || empty($userData['data'])) {
             throw new UserNotFoundException($userData['message'], 401);
@@ -157,30 +147,5 @@ class GsvAuth0Provider
             });
 
         return $this;
-    }
-
-    /**
-     * Verify a JWT from Auth0
-     *
-     * @see https://github.com/auth0/laravel-auth0/blob/8377bd09644de60d5a8688653589ea299ccd2969/src/Auth0/Login/Auth0Service.php#L206
-     * @param string $encUser
-     * @param array $verifierOptions
-     * @throws InvalidTokenException
-     * @return array
-     */
-    protected function decodeJWT(string $encUser, array $verifierOptions = []): array
-    {
-        $jwks_fetcher = app()->make('gsv-auth0-jwks-fetcher', [
-            'cache' => $this->cache,
-        ]);
-        $jwks = $jwks_fetcher->getKeys($this->jwks_uri);
-
-        $token_verifier = app()->make('gsv-auth0-token-verifier', [
-            'domain' => $this->auth0_domain,
-            'apiIdentifier' => $this->api_identifier,
-            'jwks' => $jwks,
-        ]);
-
-        return $token_verifier->verify($encUser, $verifierOptions);
     }
 }

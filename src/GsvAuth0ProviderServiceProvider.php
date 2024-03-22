@@ -2,9 +2,6 @@
 
 namespace Adaptdk\GsvAuth0Provider;
 
-use Auth0\SDK\Helpers\JWKFetcher;
-use Auth0\SDK\Helpers\Tokens\AsymmetricVerifier;
-use Auth0\SDK\Helpers\Tokens\TokenVerifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
@@ -29,26 +26,13 @@ class GsvAuth0ProviderServiceProvider extends ServiceProvider
         $this->app->singleton('gsv-auth0-provider', function () {
             return new GsvAuth0Provider(
                 config('gsv-auth0-provider.domain'),
-                config('gsv-auth0-provider.api_identifier'),
-                config('gsv-auth0-provider.jwks_uri')
+                config('gsv-auth0-provider.api_identifier')
             );
         });
 
         // Register the user service
         $this->app->singleton('gsv-auth0-user-service', function () {
             return new UserService(config('gsv-auth0-provider.user_api_base_url'));
-        });
-
-        $this->app->bind('gsv-auth0-jwks-fetcher', function ($app, $params) {
-            return new JWKFetcher($params['cache']);
-        });
-
-        $this->app->bind('gsv-auth0-token-verifier', function ($app, $params) {
-            return new TokenVerifier(
-                sprintf('https://%s/', $params['domain']),
-                $params['apiIdentifier'],
-                new AsymmetricVerifier($params['jwks']),
-            );
         });
 
         // Open the gates

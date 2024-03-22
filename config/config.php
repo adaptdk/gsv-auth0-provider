@@ -13,8 +13,4 @@ return [
 
     // The base URL for the user service
     'user_api_base_url' => env('AUTH0_USER_API'),
-
-    // The URI for the JWKS file (fallback to https://gsv.eu.auth0.com/.well-known/jwks.json)
-    'jwks_uri' => null,
-
 ];
