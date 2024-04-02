@@ -2,7 +2,7 @@
 
 namespace Adaptdk\GsvAuth0Provider;
 
-use Adaptdk\GsvAuth0Provider\Exceptions\InvalidTokenException;
+use Auth0\SDK\Exception\InvalidTokenException;
 use Adaptdk\GsvAuth0Provider\Exceptions\UserNotFoundException;
 use Adaptdk\GsvAuth0Provider\Models\Auth0User;
 use Exception;
