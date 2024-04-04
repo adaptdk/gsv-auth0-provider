@@ -23,6 +23,7 @@ class GsvAuth0Provider
         $this->configuration = new SdkConfiguration(
             domain: $domain,
             audience: [$audience],
+            tokenCache: resolve('cache.psr6'),
             clientId: 'dummy',     // Don't need a real value as we only validate jwt's
             clientSecret: 'dummy', // Don't need a real value as we only validate jwt's
             cookieSecret: 'dummy', // Don't need a real value as we only validate jwt's
