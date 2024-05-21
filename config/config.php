@@ -13,4 +13,7 @@ return [
 
     // The base URL for the user service
     'user_api_base_url' => env('AUTH0_USER_API'),
+
+    // The consumer name for the user data
+    'user_api_consumer' => env('AUTH0_USER_API_CONSUMER', 'auth0'),
 ];

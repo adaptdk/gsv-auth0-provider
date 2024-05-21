@@ -14,11 +14,17 @@ class UserService
     /**
      * @var string
      */
+    protected $consumer;
+
+    /**
+     * @var string
+     */
     protected string $token;
 
-    public function __construct(?string $baseUrl = null)
+    public function __construct(?string $baseUrl = null, ?string $consumer = null)
     {
         $this->baseUrl = $baseUrl;
+        $this->consumer = $consumer;
     }
 
     /**
@@ -83,8 +89,7 @@ class UserService
         }
 
         return Http::withToken($this->token)
-            ->withoutVerifying()
-            ->get($this->baseUrl . '/api/users/auth0')
+            ->get(sprintf('%s/api/users/%s', $this->baseUrl, $this->consumer))
             ->json();
     }
 }

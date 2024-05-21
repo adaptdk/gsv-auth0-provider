@@ -32,7 +32,10 @@ class GsvAuth0ProviderServiceProvider extends ServiceProvider
 
         // Register the user service
         $this->app->singleton('gsv-auth0-user-service', function () {
-            return new UserService(config('gsv-auth0-provider.user_api_base_url'));
+            return new UserService(
+                config('gsv-auth0-provider.user_api_base_url'),
+                config('gsv-auth0-provider.user_api_consumer')
+            );
         });
 
         // Open the gates
