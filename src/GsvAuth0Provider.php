@@ -67,12 +67,9 @@ class GsvAuth0Provider
 
         $client = app()->make('gsv-auth0-user-service');
 
-        Log::debug('User auth0_id {auth0_id}', ['auth0_id' => $user->auth0_id]);
-        Log::debug('User expires {expires}', ['expires' => $user->expires]);
-
         if ($user->expires->isAfter(Carbon::now())) {
-            Log::debug('Fetching user information');
-            Log::debug('Cache for {lifetime}', ['lifetime' => $user->expires->diffInSeconds(Carbon::now())]);
+            $ttl = (int) Carbon::now()->diffInSeconds($user->expires);
+            Log::debug('Cache for {ttl}', ['ttl' => $ttl]);
             $userData = Cache::remember(
                 sprintf('user:info:%s', $user->auth0_id),
                 $user->expires->diffInSeconds(Carbon::now()),
