@@ -72,7 +72,7 @@ class GsvAuth0Provider
             Log::debug('Cache for {ttl}', ['ttl' => $ttl]);
             $userData = Cache::remember(
                 sprintf('user:info:%s', $user->auth0_id),
-                $user->expires->diffInSeconds(Carbon::now()),
+                $ttl,
                 function () use ($client, $user) {
                     Log::debug('Caching data');
                     return $client->setToken($user->token)->fetch($user->auth0_id);
