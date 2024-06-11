@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 use Auth0\SDK\Token;
 use Auth0\SDK\Configuration\SdkConfiguration;
@@ -67,9 +68,10 @@ class GsvAuth0Provider
         $client = app()->make('gsv-auth0-user-service');
 
         if ($user->expires->isAfter(Carbon::now())) {
+            $ttl = (int) Carbon::now()->diffInSeconds($user->expires);
             $userData = Cache::remember(
                 sprintf('user:info:%s', $user->auth0_id),
-                $user->expires->diffInSeconds(Carbon::now()),
+                $ttl,
                 function () use ($client, $user) {
                     return $client->setToken($user->token)->fetch($user->auth0_id);
                 }
