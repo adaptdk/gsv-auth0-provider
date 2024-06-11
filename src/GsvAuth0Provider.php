@@ -10,7 +10,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 use Auth0\SDK\Token;
 use Auth0\SDK\Configuration\SdkConfiguration;
