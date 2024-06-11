@@ -77,6 +77,7 @@ class GsvAuth0Provider
                 sprintf('user:info:%s', $user->auth0_id),
                 $user->expires->diffInSeconds(Carbon::now()),
                 function () use ($client, $user) {
+                    Log::debug('Caching data');
                     return $client->setToken($user->token)->fetch($user->auth0_id);
                 }
             );
