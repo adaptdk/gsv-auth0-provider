@@ -9,14 +9,14 @@
     "homepage": "https://github.com/adaptdk/gsv-auth0-provider",
     "license": "MIT",
     "require": {
-        "php": "^8.1|^8.2",
+        "php": "^8.1|^8.2|^8.3",
         "auth0/auth0-php": "^8.0",
-        "illuminate/support": "^8.0|^9.0|^10.0|^11.0",
+        "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
         "symfony/cache" : "^6.4|^7.0"
     },
     "require-dev": {
         "nunomaduro/collision": "^5.3|^6|^7|^8",
-        "orchestra/testbench": "^6.18|^7|^8",
+        "orchestra/testbench": "^6.18|^7|^8|^9|^10",
         "phpunit/phpunit": "^9.3|^10|^11"
     },
     "autoload": {
